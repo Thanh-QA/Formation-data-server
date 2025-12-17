@@ -4,28 +4,46 @@
     <title>Formation Internal Data Server</title>
     <style>
         body { font-family: Arial; padding: 30px; }
-        input { padding: 8px; width: 300px; }
+        .row { margin-bottom: 15px; }
+        input { padding: 8px; width: 300px; margin-right: 10px; }
         button { padding: 8px 12px; }
-        pre { background: #f4f4f4; padding: 15px; }
+        pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; word-wrap: break-word; }
     </style>
 </head>
 <body>
 
-<h2>OCV Internal Data</h2>
+<h2>Internal Data Server</h2>
 
-<input id="barcode" placeholder="Input barcode..." />
-<button onclick="lookup()">Lookup</button>
+<div class="row">
+    <input id="barcode" placeholder="Input Barcode..." />
+    <button onclick="search()">Search</button>
+</div>
+
+<div class="row">
+    <input id="process" placeholder="Input Process..." />
+    <button onclick="search()">Search</button>
+</div>
 
 <pre id="result"></pre>
 
 <script>
-function lookup() {
-    const b = document.getElementById("barcode").value;
-    fetch(`/lookup?barcode=${b}`)
+function search() {
+    const barcode = document.getElementById("barcode").value;
+    const process = document.getElementById("process").value;
+
+    // build query string
+    let query = [];
+    if(barcode) query.push("barcode=" + encodeURIComponent(barcode));
+    if(process) query.push("process=" + encodeURIComponent(process));
+
+    fetch(`/search?${query.join("&")}`)
         .then(r => r.json())
         .then(data => {
             document.getElementById("result").textContent =
                 JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+            document.getElementById("result").textContent = "Error: " + err;
         });
 }
 </script>
