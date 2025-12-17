@@ -2,12 +2,12 @@ import pandas as pd
 from sqlalchemy import create_engine
 from pathlib import Path
 
-DB_URL = "postgresql://neondb_owner:npg_5AZ9EfMmurpN@ep-spring-wind-a1olms9s-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-engine = create_engine(DB_URL)
+DATABASE_URL = "postgresql://thanhformation:3Sp48UmuBx5FuJ9ELUENluGOc3lHssBx@dpg-d51edgggjchc73b4tes0-a/data_cloud"
+engine = create_engine(DATABASE_URL)
 
 folder = Path("Formation data server")
 
-for file in folder.glob("data_cloud.db"):
+for file in folder.glob("DATABASE_URL"):
     xls = pd.ExcelFile(file)
     for sheet in xls.sheet_names:
         print(f"Import {file.name} | {sheet}")
