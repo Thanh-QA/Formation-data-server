@@ -45,7 +45,7 @@ def query_db(sql: str, params: tuple = ()):
 def lookup(
     batch: str | None = None,
     process: str | None = None,
-    limit: int = %s
+    limit: int = 1000
 ):
     where_clauses = []
     params = []
@@ -74,5 +74,6 @@ def lookup(
 
     df = query_db(sql, tuple(params))
     return df.to_dict(orient="records")
+
 
 
