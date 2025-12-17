@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from fastapi import FastAPI, Query
 from pathlib import Path
 from fastapi.responses import HTMLResponse
@@ -196,4 +195,5 @@ def lookup(
 
     df = query_db(sql, params)
     return df.to_dict(orient="records")
+
 >>>>>>> d98a3bc2c31c8b20acaaa4149e2cc8877a6296f8
