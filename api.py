@@ -25,10 +25,7 @@ print("=== API VERSION: POSTGRES READY ===")
 # ===========================
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request}
-    )
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # ===========================
 # DB helper
@@ -42,27 +39,10 @@ def query_db(sql: str, params: tuple = ()):
         conn.close()
 
 # ===========================
-# Lookup by barcode
-# ===========================
-@app.get("/search/barcode")
-def search_barcode(
-    barcode: str = Query(..., description="Barcode Number"),
-    limit: int = 100
-):
-    sql = """
-        SELECT *
-        FROM all_data
-        WHERE "Barcode Number" = %s
-        LIMIT %s
-    """
-    df = query_db(sql, (barcode, limit))
-    return df.to_dict(orient="records")
-
-# ===========================
 # Lookup barcode + process
 # ===========================
-@app.get("/search")
-def search(
+@app.get("/lookup")
+def lookup(
     barcode: str | None = None,
     process: str | None = None,
     limit: int = 100
@@ -70,7 +50,7 @@ def search(
     where_clauses = []
     params = []
 
-    # Lưu ý: tên cột trong DB là "barcode" và "process_name"
+    # Tên cột trong DB: "barcode" và "process_name"
     if barcode:
         where_clauses.append("barcode = %s")
         params.append(barcode)
