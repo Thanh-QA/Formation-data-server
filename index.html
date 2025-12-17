@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OCV Lookup</title>
+    <style>
+        body { font-family: Arial; padding: 30px; }
+        input { padding: 8px; width: 300px; }
+        button { padding: 8px 12px; }
+        pre { background: #f4f4f4; padding: 15px; }
+    </style>
+</head>
+<body>
+
+<h2>OCV Internal Lookup</h2>
+
+<input id="barcode" placeholder="Input barcode..." />
+<button onclick="lookup()">Lookup</button>
+
+<pre id="result"></pre>
+
+<script>
+function lookup() {
+    const b = document.getElementById("barcode").value;
+    fetch(`/lookup?barcode=${b}`)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById("result").textContent =
+                JSON.stringify(data, null, 2);
+        });
+}
+</script>
+
+</body>
+</html>
