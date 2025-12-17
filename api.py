@@ -11,8 +11,7 @@ import psycopg2
 # ===========================
 app = FastAPI(title="Formation Internal Data Server")
 
-BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates = Jinja2Templates(directory="templates")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -107,3 +106,4 @@ def lookup(
 
     df = query_db(sql, tuple(params))
     return df.to_dict(orient="records")
+
