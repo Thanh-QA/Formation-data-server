@@ -13,7 +13,9 @@ app = FastAPI(title="Formation Internal Data Server")
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-DATABASE_URL = os.environ["postgresql://thanhformation:3Sp48UmuBx5FuJ9ELUENluGOc3lHssBx@dpg-d51edgggjchc73b4tes0-a/data_cloud"]
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set")
 
 # ---------------------------
 # Trang chủ
@@ -99,3 +101,4 @@ def lookup(
 
     df = query_db(sql, params)
     return df.to_dict(orient="records")
+
