@@ -1,36 +1,33 @@
+import sqlite3
 import pandas as pd
 from sqlalchemy import create_engine
-from pathlib import Path
 
-DATABASE_URL = "postgresql://thanhformation:3Sp48UmuBx5FuJ9ELUENluGOc3lHssBx@dpg-d51edgggjchc73b4tes0-a/data_cloud"
-engine = create_engine(DATABASE_URL)
+# SQLite file
+sqlite_file = "data_cloud.db"
+sqlite_conn = sqlite3.connect(sqlite_file)
 
-folder = Path("Formation data server")
+# PostgreSQL
+DB_URL = "postgresql://thanhformation:3Sp48UmuBx5FuJ9ELUENluGOc3lHssBx@dpg-d51edgggjchc73b4tes0-a/data_cloud"
+pg_engine = create_engine(DB_URL)
 
-for file in folder.glob("DATABASE_URL"):
-    xls = pd.ExcelFile(file)
-    for sheet in xls.sheet_names:
-        print(f"Import {file.name} | {sheet}")
+# Lấy danh sách bảng trong SQLite
+tables = pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", sqlite_conn)
 
-        df = pd.read_excel(file, sheet_name=sheet, dtype=str)
+for table in tables['name']:
+    df = pd.read_sql(f"SELECT * FROM {table}", sqlite_conn)
 
-        df.columns = df.columns.str.strip().str.lower()
+    # Chuẩn hóa cột
+    df.columns = df.columns.str.strip().str.lower()
+    df.rename(columns={
+        "cell barcode": "barcode",
+        "process name": "process_name",
+        "cellstate": "cell_state"
+    }, inplace=True)
 
-        df = df.rename(columns={
-            "cell barcode": "barcode",
-            "cellstate": "cell_state",
-            "process name": "process_name"
-        })
+    # Loại bỏ space thừa
+    for col in df.columns:
+        if df[col].dtype == object:
+            df[col] = df[col].str.strip()
 
-        df["source_file"] = file.name
-        df["source_sheet"] = sheet
-
-        df.to_sql(
-            "all_data",
-            engine,
-            if_exists="append",
-            index=False,
-            chunksize=10000
-        )
-
-print("IMPORT DONE")
+    # Ghi sang PostgreSQL
+    df.to_sql("all_data", pg_engine, if_exists="replace", index=False)
