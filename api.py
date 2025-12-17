@@ -47,8 +47,8 @@ def lookup_barcode(
     sql = f"""
         SELECT *
         FROM all_data
-        WHERE [Barcode Number] = ?
-        LIMIT {limit}
+        WHERE "Barcode Number" = %s
+        LIMIT 100
     """
     df = query_db(sql, (barcode,))
     return df.to_dict(orient="records")
@@ -64,8 +64,8 @@ def lookup_process(
     sql = f"""
         SELECT *
         FROM all_data
-        WHERE [Process name] = ?
-        LIMIT {limit}
+        WHERE "Process name" = %s
+        LIMIT 100
     """
     df = query_db(sql, (process,))
     return df.to_dict(orient="records")
@@ -101,4 +101,5 @@ def lookup(
 
     df = query_db(sql, params)
     return df.to_dict(orient="records")
+
 
