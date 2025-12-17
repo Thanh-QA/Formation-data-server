@@ -11,7 +11,8 @@ import psycopg2
 # ===========================
 app = FastAPI(title="Formation Internal Data Server")
 
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -43,8 +44,8 @@ def query_db(sql: str, params: tuple = ()):
 # ===========================
 # Lookup by barcode
 # ===========================
-@app.get("/lookup/barcode")
-def lookup_barcode(
+@app.get("/search/barcode")
+def search_barcode(
     barcode: str = Query(..., description="Barcode Number"),
     limit: int = 100
 ):
@@ -58,27 +59,10 @@ def lookup_barcode(
     return df.to_dict(orient="records")
 
 # ===========================
-# Lookup by process
-# ===========================
-@app.get("/lookup/process")
-def lookup_process(
-    process: str = Query(..., description="Process name"),
-    limit: int = 100
-):
-    sql = """
-        SELECT *
-        FROM all_data
-        WHERE "Process name" = %s
-        LIMIT %s
-    """
-    df = query_db(sql, (process, limit))
-    return df.to_dict(orient="records")
-
-# ===========================
 # Lookup barcode + process
 # ===========================
-@app.get("/lookup")
-def lookup(
+@app.get("/search")
+def search(
     barcode: str | None = None,
     process: str | None = None,
     limit: int = 100
@@ -86,12 +70,13 @@ def lookup(
     where_clauses = []
     params = []
 
+    # Lưu ý: tên cột trong DB là "barcode" và "process_name"
     if barcode:
-        where_clauses.append('"Barcode Number" = %s')
+        where_clauses.append("barcode = %s")
         params.append(barcode)
 
     if process:
-        where_clauses.append('"Process name" = %s')
+        where_clauses.append("process_name = %s")
         params.append(process)
 
     where_sql = " AND ".join(where_clauses) if where_clauses else "TRUE"
@@ -106,4 +91,3 @@ def lookup(
 
     df = query_db(sql, tuple(params))
     return df.to_dict(orient="records")
-
