@@ -4,7 +4,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 import sqlite3
-import pandas as pdimport os
+import pandas as pd
+import os
 import psycopg2
 
 app = FastAPI(title="Formation Internal Data Server")
@@ -98,4 +99,3 @@ def lookup(
 
     df = query_db(sql, params)
     return df.to_dict(orient="records")
-
