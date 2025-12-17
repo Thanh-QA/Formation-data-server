@@ -4,14 +4,15 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 import sqlite3
-import pandas as pd
+import pandas as pdimport os
+import psycopg2
 
 app = FastAPI(title="Formation Internal Data Server")
 
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-DB_PATH = "data_cloud.db"
+DATABASE_URL = os.environ["postgresql://thanhformation:3Sp48UmuBx5FuJ9ELUENluGOc3lHssBx@dpg-d51edgggjchc73b4tes0-a/data_cloud"]
 
 # ---------------------------
 # Trang chủ
@@ -27,7 +28,7 @@ def home(request: Request):
 # Hàm query chung
 # ---------------------------
 def query_db(sql, params=()):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(DATABASE_URL)
     df = pd.read_sql(sql, conn, params=params)
     conn.close()
     return df
@@ -97,3 +98,4 @@ def lookup(
 
     df = query_db(sql, params)
     return df.to_dict(orient="records")
+
