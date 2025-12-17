@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Query
-from pathlib import Path
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.requests import Request
-import sqlite3
-import pandas as pd
+from pathlib import Path
 import os
+import pandas as pd
 import psycopg2
 
+# ===========================
+# App init
+# ===========================
 app = FastAPI(title="Formation Internal Data Server")
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -17,9 +18,11 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set")
 
-# ---------------------------
-# Trang chủ
-# ---------------------------
+print("=== API VERSION: POSTGRES READY ===")
+
+# ===========================
+# Home page
+# ===========================
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse(
@@ -27,79 +30,80 @@ def home(request: Request):
         {"request": request}
     )
 
-# ---------------------------
-# Hàm query chung
-# ---------------------------
-def query_db(sql, params=()):
+# ===========================
+# DB helper
+# ===========================
+def query_db(sql: str, params: tuple = ()):
     conn = psycopg2.connect(DATABASE_URL)
-    df = pd.read_sql(sql, conn, params=params)
-    conn.close()
-    return df
+    try:
+        df = pd.read_sql(sql, conn, params=params)
+        return df
+    finally:
+        conn.close()
 
-# ---------------------------
-# API lookup barcode
-# ---------------------------
+# ===========================
+# Lookup by barcode
+# ===========================
 @app.get("/lookup/barcode")
 def lookup_barcode(
     barcode: str = Query(..., description="Barcode Number"),
     limit: int = 100
 ):
-    sql = f"""
+    sql = """
         SELECT *
         FROM all_data
         WHERE "Barcode Number" = %s
-        LIMIT 100
+        LIMIT %s
     """
-    df = query_db(sql, (barcode,))
+    df = query_db(sql, (barcode, limit))
     return df.to_dict(orient="records")
 
-# ---------------------------
-# API lookup process
-# ---------------------------
+# ===========================
+# Lookup by process
+# ===========================
 @app.get("/lookup/process")
 def lookup_process(
     process: str = Query(..., description="Process name"),
     limit: int = 100
 ):
-    sql = f"""
+    sql = """
         SELECT *
         FROM all_data
         WHERE "Process name" = %s
-        LIMIT 100
+        LIMIT %s
     """
-    df = query_db(sql, (process,))
+    df = query_db(sql, (process, limit))
     return df.to_dict(orient="records")
 
-# ---------------------------
-# API lookup barcode + process
-# ---------------------------
+# ===========================
+# Lookup barcode + process
+# ===========================
 @app.get("/lookup")
 def lookup(
     barcode: str | None = None,
     process: str | None = None,
     limit: int = 100
 ):
-    where = []
+    where_clauses = []
     params = []
 
     if barcode:
-        where.append("[Barcode Number] = ?")
+        where_clauses.append('"Barcode Number" = %s')
         params.append(barcode)
 
     if process:
-        where.append("[Process name] = ?")
+        where_clauses.append('"Process name" = %s')
         params.append(process)
 
-    where_sql = " AND ".join(where) if where else "1=1"
+    where_sql = " AND ".join(where_clauses) if where_clauses else "TRUE"
 
     sql = f"""
         SELECT *
         FROM all_data
         WHERE {where_sql}
-        LIMIT {limit}
+        LIMIT %s
     """
+    params.append(limit)
 
-    df = query_db(sql, params)
+    df = query_db(sql, tuple(params))
     return df.to_dict(orient="records")
-
-
