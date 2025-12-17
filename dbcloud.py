@@ -19,9 +19,8 @@ for table in tables['name']:
     # Chuẩn hóa cột
     df.columns = df.columns.str.strip().str.lower()
     df.rename(columns={
-        "cell barcode": "barcode",
-        "process name": "process_name",
-        "cellstate": "cell_state"
+        "Cell Batch": "batch",
+        "Process name": "process_name",
     }, inplace=True)
 
     # Loại bỏ space thừa
@@ -31,3 +30,4 @@ for table in tables['name']:
 
     # Ghi sang PostgreSQL
     df.to_sql("all_data", pg_engine, if_exists="replace", index=False)
+
