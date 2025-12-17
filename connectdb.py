@@ -1,7 +1,8 @@
 import psycopg2
 
 conn = psycopg2.connect(
-    "postgresql://neondb_owner:npg_5AZ9EfMmurpN@ep-spring-wind-a1olms9s-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    "postgresql://thanhformation:3Sp48UmuBx5FuJ9ELUENluGOc3lHssBx@dpg-d51edgggjchc73b4tes0-a/data_cloud"
 )
 print("CONNECTED")
 conn.close()
+
