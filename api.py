@@ -39,7 +39,7 @@ def query_db(sql: str, params: tuple = ()):
         conn.close()
 
 # ===========================
-# Lookup barcode + process
+# Lookup batch + process
 # ===========================
 @app.get("/lookup")
 def lookup(
@@ -53,7 +53,7 @@ def lookup(
     # Tên cột trong DB: "batch" và "process_name"
     if batch:
         where_clauses.append("batch = %s")
-        params.append(barcode)
+        params.append(batch)
 
     if process:
         where_clauses.append("process_name = %s")
@@ -74,4 +74,5 @@ def lookup(
 
     df = query_db(sql, tuple(params))
     return df.to_dict(orient="records")
+
 
