@@ -16,27 +16,22 @@
 
 <div class="row">
     <input id="barcode" placeholder="Input Barcode..." />
-    <button onclick="search()">Search</button>
-</div>
-
-<div class="row">
     <input id="process" placeholder="Input Process..." />
-    <button onclick="search()">Search</button>
+    <button onclick="lookup()">Lookup</button>
 </div>
 
 <pre id="result"></pre>
 
 <script>
-function search() {
+function lookup() {
     const barcode = document.getElementById("barcode").value;
     const process = document.getElementById("process").value;
 
-    // build query string
     let query = [];
     if(barcode) query.push("barcode=" + encodeURIComponent(barcode));
     if(process) query.push("process=" + encodeURIComponent(process));
 
-    fetch(`/search?${query.join("&")}`)
+    fetch(`/lookup?${query.join("&")}`)
         .then(r => r.json())
         .then(data => {
             document.getElementById("result").textContent =
