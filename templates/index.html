@@ -15,7 +15,7 @@
 <h2>Internal Data Server</h2>
 
 <div class="row">
-    <input id="barcode" placeholder="Input Barcode..." />
+    <input id="batch" placeholder="Input Batch..." />
     <input id="process" placeholder="Input Process..." />
     <button onclick="lookup()">Search</button>
 </div>
@@ -24,11 +24,11 @@
 
 <script>
 function lookup() {
-    const barcode = document.getElementById("barcode").value;
+    const batch = document.getElementById("batch").value;
     const process = document.getElementById("process").value;
 
     let query = [];
-    if(barcode) query.push("barcode=" + encodeURIComponent(barcode));
+    if(batch) query.push("batch=" + encodeURIComponent(batch));
     if(process) query.push("process=" + encodeURIComponent(process));
 
     fetch(`/lookup?${query.join("&")}`)
