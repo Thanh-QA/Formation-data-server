@@ -63,11 +63,14 @@ def lookup(
 
     sql = f"""
         SELECT *
-        FROM all_data
+        FROM public.all_data
         WHERE {where_sql}
         LIMIT %s
     """
     params.append(limit)
+    print("SQL:", sql)
+    print("PARAMS:", params)
+
 
     df = query_db(sql, tuple(params))
     return df.to_dict(orient="records")
